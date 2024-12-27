@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <Button
+        android:id="@+id/btnHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="도움말"
+        android:layout_gravity="end"
+        android:background="@android:color/transparent"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="12sp"
+        android:layout_marginTop="40dp" />
+
+    <Button
+        android:id="@+id/btnFinanceQuiz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Finance 문제"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/btnEconomyQuiz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Economy 문제"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/btnPublicQuiz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Public 문제"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/btnWrongNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="오답 노트"
+        android:layout_marginTop="30dp" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="20dp"
+        android:paddingTop="16dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:id="@+id/tvQuizResults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="최근 퀴즈 결과가 없습니다."
+            android:textSize="14sp"/>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,8 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Quiz_app_submit" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- 핵심 팔레트 -->
+        <item name="colorPrimary">@color/color_main</item>
+        <item name="colorOnPrimary">@color/color_on_main</item>
+
+        <item name="colorSecondary">@color/color_sub</item>
+        <item name="colorOnSecondary">@color/color_on_sub</item>
+
+        <item name="colorPrimaryContainer">@color/color_main</item>
+        <item name="colorOnPrimaryContainer">@color/color_on_main</item>
+        <item name="colorSecondaryContainer">@color/color_sub</item>
+        <item name="colorOnSecondaryContainer">@color/color_on_sub</item>
+
+        <!-- 버튼 전역 스타일 -->
+        <item name="materialButtonStyle">@style/Widget.Quiz_app_submit.Button</item>
+    </style>
+
+    <!-- Material3 버튼 위젯으로 맞춤 -->
+    <style name="Widget.Quiz_app_submit.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/color_main</item>
+        <item name="android:textColor">@color/color_on_main</item>
     </style>
 
     <style name="Theme.Quiz_app_submit" parent="Base.Theme.Quiz_app_submit" />

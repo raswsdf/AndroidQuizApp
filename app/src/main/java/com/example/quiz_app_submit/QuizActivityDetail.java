@@ -4,84 +4,111 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class QuizEconomyActivity extends AppCompatActivity {
+public class QuizActivityDetail extends AppCompatActivity {
 
-    private TextView tvEconomyQuestion, tvEconomyScore;
-    private TextView tvEconomyProgress;
-    private Button btnEconomyOp1, btnEconomyOp2, btnEconomyOp3, btnEconomyOp4, btnEconomyHint, btnNextPage;
+    // 공용 레이아웃(id 통일) 기반 View
+    private TextView tvQuestion, tvScore, tvProgress;
+    private Button btnOp1, btnOp2, btnOp3, btnOp4, btnHint, btnNextPage;
+
+    // 퀴즈 상태
     private QuizData quizData;
     private int currentQuestionIndex = 0;
     private int score = 100;
-    private List<Question> wrongQuestions = new ArrayList<>(); // 틀린 문제를 저장할 리스트
-    private List<Question> shuffledQuestions = new ArrayList<>(); // 섞인 문제를 저장할 리스트
+    private final List<Question> wrongQuestions = new ArrayList<>();
+    private List<Question> shuffledQuestions = new ArrayList<>();
+    private long quizStartTime;
 
-    private long quizStartTime; // 퀴즈 시작 시간 저장
+    // 카테고리(문제 데이터용/저장용)
+    private String categoryLower; // "economy" | "finance" | "public"
+    private String categoryPrefKey; // "Economy" | "Finance" | "Public"
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz_economy);
+        setContentView(R.layout.activity_quiz_detail);
 
-        tvEconomyQuestion = findViewById(R.id.tvEconomyQuestion);
-        tvEconomyScore = findViewById(R.id.tvEconomyScore);
-        tvEconomyProgress = findViewById(R.id.tvEconomyProgress);
-        updateProgressText();
+        // 1) 카테고리 받기
+        // - MainActivity에서 넘길 값: "economy"/"finance"/"public"
+        categoryLower = getIntent().getStringExtra("category");
+        if (categoryLower == null) categoryLower = "economy"; // 방어 코드 (기본값)
 
-        btnEconomyOp1 = findViewById(R.id.btnEconomyOp1);
-        btnEconomyOp2 = findViewById(R.id.btnEconomyOp2);
-        btnEconomyOp3 = findViewById(R.id.btnEconomyOp3);
-        btnEconomyOp4 = findViewById(R.id.btnEconomyOp4);
-        btnEconomyHint = findViewById(R.id.btnEconomyHint);
+        categoryPrefKey = toPrefKey(categoryLower);
+
+        // 2) View 바인딩
+        tvQuestion = findViewById(R.id.tvQuestion);
+        tvScore = findViewById(R.id.tvScore);
+        tvProgress = findViewById(R.id.tvProgress);
+
+        btnOp1 = findViewById(R.id.btnOp1);
+        btnOp2 = findViewById(R.id.btnOp2);
+        btnOp3 = findViewById(R.id.btnOp3);
+        btnOp4 = findViewById(R.id.btnOp4);
+        btnHint = findViewById(R.id.btnHint);
         btnNextPage = findViewById(R.id.btnNextPage);
 
-        quizData = new QuizData("economy");
+        // 3) 데이터 준비
+        quizData = new QuizData(categoryLower);
         shuffleQuestions();
-        quizStartTime = System.currentTimeMillis(); // 퀴즈 시작 시간 저장
+        quizStartTime = System.currentTimeMillis();
 
+        // 4) 첫 문제 표시 + 리스너
         displayQuestion();
-
         setOptionClickListeners();
         setHintClickListener();
         setNextPageClickListener();
     }
 
+    // 기존 SharedPreferencesManager 키와 호환되게 유지
+    private String toPrefKey(String lower) {
+        switch (lower) {
+            case "finance": return "Finance";
+            case "public":  return "Public";
+            case "economy":
+            default:        return "Economy";
+        }
+    }
+
     private void updateProgressText() {
         String progressText = "진행 상황: " + (currentQuestionIndex + 1) + "/5";
-        tvEconomyProgress.setText(progressText);
+        tvProgress.setText(progressText);
     }
 
     private void shuffleQuestions() {
         List<Question> allQuestions = quizData.getAllQuestions();
         Collections.shuffle(allQuestions);
-        shuffledQuestions = allQuestions.subList(0, 5);
+
+        // 안전장치: 문제 수가 5개 미만인 경우도 대비
+        int count = Math.min(5, allQuestions.size());
+        shuffledQuestions = allQuestions.subList(0, count);
     }
 
     private void displayQuestion() {
-        if (currentQuestionIndex < 5) {
-            updateProgressText(); // 진행 상태 업데이트
-            Question question = shuffledQuestions.get(currentQuestionIndex);
-            tvEconomyQuestion.setText(question.getQuestionText());
+        if (currentQuestionIndex < shuffledQuestions.size()) {
+            updateProgressText();
 
+            Question question = shuffledQuestions.get(currentQuestionIndex);
+            tvQuestion.setText(question.getQuestionText());
+
+            // 기존 코드 유지: getRandomWrongAnswer(index) 사용
             List<String> options = quizData.getRandomWrongAnswer(currentQuestionIndex);
 
-            btnEconomyOp1.setText(options.get(0));
-            btnEconomyOp2.setText(options.get(1));
-            btnEconomyOp3.setText(options.get(2));
-            btnEconomyOp4.setText(options.get(3));
+            btnOp1.setText(options.get(0));
+            btnOp2.setText(options.get(1));
+            btnOp3.setText(options.get(2));
+            btnOp4.setText(options.get(3));
 
             enableOptionButtons();
-
             btnNextPage.setVisibility(View.GONE);
         } else {
             finishQuiz();
@@ -89,19 +116,20 @@ public class QuizEconomyActivity extends AppCompatActivity {
     }
 
     private void setOptionClickListeners() {
-        btnEconomyOp1.setOnClickListener(v -> checkAnswer(btnEconomyOp1.getText().toString(), btnEconomyOp1));
-        btnEconomyOp2.setOnClickListener(v -> checkAnswer(btnEconomyOp2.getText().toString(), btnEconomyOp2));
-        btnEconomyOp3.setOnClickListener(v -> checkAnswer(btnEconomyOp3.getText().toString(), btnEconomyOp3));
-        btnEconomyOp4.setOnClickListener(v -> checkAnswer(btnEconomyOp4.getText().toString(), btnEconomyOp4));
+        btnOp1.setOnClickListener(v -> checkAnswer(btnOp1.getText().toString(), btnOp1));
+        btnOp2.setOnClickListener(v -> checkAnswer(btnOp2.getText().toString(), btnOp2));
+        btnOp3.setOnClickListener(v -> checkAnswer(btnOp3.getText().toString(), btnOp3));
+        btnOp4.setOnClickListener(v -> checkAnswer(btnOp4.getText().toString(), btnOp4));
     }
 
     private void setHintClickListener() {
-        btnEconomyHint.setOnClickListener(v -> {
+        btnHint.setOnClickListener(v -> {
             int remainingOptions = countEnabledOptions();
 
-            if (remainingOptions > 1) { // 마지막 선지
+            // 마지막 선지 1개 남았으면 힌트 사용 불가
+            if (remainingOptions > 1) {
                 score -= 5;
-                tvEconomyScore.setText("점수: " + Math.max(score, 0));
+                tvScore.setText("점수: " + Math.max(score, 0));
                 disableOneIncorrectOption();
             } else {
                 Toast.makeText(this, "힌트를 더 이상 사용할 수 없습니다.", Toast.LENGTH_SHORT).show();
@@ -111,23 +139,17 @@ public class QuizEconomyActivity extends AppCompatActivity {
 
     private int countEnabledOptions() {
         int count = 0;
-        for (Button option : new Button[]{btnEconomyOp1, btnEconomyOp2, btnEconomyOp3, btnEconomyOp4}) {
-            if (option.isEnabled()) {
-                count++;
-            }
+        for (Button option : new Button[]{btnOp1, btnOp2, btnOp3, btnOp4}) {
+            if (option.isEnabled()) count++;
         }
         return count;
     }
 
     private void disableOneIncorrectOption() {
         Question currentQuestion = shuffledQuestions.get(currentQuestionIndex);
-        List<Button> options = new ArrayList<>();
-        options.add(btnEconomyOp1);
-        options.add(btnEconomyOp2);
-        options.add(btnEconomyOp3);
-        options.add(btnEconomyOp4);
 
-        for (Button option : options) {
+        for (Button option : new Button[]{btnOp1, btnOp2, btnOp3, btnOp4}) {
+            // 정답이 아닌 버튼 중, 아직 활성화된 것 하나만 제거
             if (!option.getText().toString().equals(currentQuestion.getAnswer()) && option.isEnabled()) {
                 option.setEnabled(false);
                 option.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
@@ -144,11 +166,12 @@ public class QuizEconomyActivity extends AppCompatActivity {
     }
 
     private void enableOptionButtons() {
-        for (Button option : new Button[]{btnEconomyOp1, btnEconomyOp2, btnEconomyOp3, btnEconomyOp4}) {
+        for (Button option : new Button[]{btnOp1, btnOp2, btnOp3, btnOp4}) {
             option.setEnabled(true);
-            option.setBackgroundColor(Color.parseColor("#8A73C6")); // 연한 보라
+            option.setBackgroundColor(Color.parseColor("#699472")); // 서브 컬러(눈 보기 편하게)
         }
-        btnEconomyHint.setBackgroundColor(Color.parseColor("#64B5B4")); // 옅은 청록
+        btnHint.setBackgroundColor(Color.parseColor("#346F41")); // 메인 컬러
+        tvScore.setText("점수: " + Math.max(score, 0));
     }
 
     private void checkAnswer(String selectedAnswer, Button selectedButton) {
@@ -156,31 +179,30 @@ public class QuizEconomyActivity extends AppCompatActivity {
 
         if (selectedAnswer.equals(currentQuestion.getAnswer())) {
             Toast.makeText(this, "정답입니다!", Toast.LENGTH_SHORT).show();
-
-            // 모든 버튼 비활성화
             disableAllOptionButtons();
 
             new Handler().postDelayed(() -> {
                 currentQuestionIndex++;
-                if (currentQuestionIndex < 5) {
+                if (currentQuestionIndex < shuffledQuestions.size()) {
                     displayQuestion();
                 } else {
                     finishQuiz();
                 }
             }, 1500);
+
         } else {
-            // 틀린 경우 선택한 버튼만 비활성화
+            // 틀린 경우: 선택한 버튼만 비활성화
             selectedButton.setEnabled(false);
             selectedButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
 
             // 점수 감소
             score -= 10;
             score = Math.max(score, 0);
-            tvEconomyScore.setText("점수: " + score);
+            tvScore.setText("점수: " + score);
 
             Toast.makeText(this, "틀렸습니다. 10점이 감점되었습니다.", Toast.LENGTH_SHORT).show();
 
-            // 중복 체크 후 틀린 문제 추가
+            // 중복 없이 추가 (Question equals/hashCode 구현 여부에 따라 contains가 동작)
             if (!wrongQuestions.contains(currentQuestion)) {
                 wrongQuestions.add(currentQuestion);
             }
@@ -190,9 +212,8 @@ public class QuizEconomyActivity extends AppCompatActivity {
         }
     }
 
-
     private void disableAllOptionButtons() {
-        for (Button option : new Button[]{btnEconomyOp1, btnEconomyOp2, btnEconomyOp3, btnEconomyOp4}) {
+        for (Button option : new Button[]{btnOp1, btnOp2, btnOp3, btnOp4}) {
             option.setEnabled(false);
             option.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
         }
@@ -203,15 +224,14 @@ public class QuizEconomyActivity extends AppCompatActivity {
         long quizEndTime = System.currentTimeMillis();
         long timeSpent = (quizEndTime - quizStartTime) / 1000;
 
-        SharedPreferencesManager.getInstance(this).saveWrongQuestions("Economy", wrongQuestions);
+        // 기존 복습 퀴즈(QuizActivity)와 호환: "Economy/Finance/Public" 키로 저장
+        SharedPreferencesManager.getInstance(this).saveWrongQuestions(categoryPrefKey, wrongQuestions);
 
         Intent resultIntent = new Intent(this, ResultActivity.class);
-        resultIntent.putExtra("category", "economy");
+        resultIntent.putExtra("category", categoryLower); // 기존 ResultActivity 표기/저장 흐름 유지
         resultIntent.putExtra("score", finalScore);
         resultIntent.putExtra("timeSpent", timeSpent);
-        // 틀린 문제 리스트 전달
         resultIntent.putExtra("wrongQuestions", new ArrayList<>(wrongQuestions));
-
         startActivity(resultIntent);
 
         finish();

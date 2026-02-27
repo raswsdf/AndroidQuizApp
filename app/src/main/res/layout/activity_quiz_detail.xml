@@ -6,7 +6,7 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/tvFinanceScore"
+        android:id="@+id/tvScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="점수: 100"
@@ -14,7 +14,7 @@
         android:paddingBottom="10dp" />
 
     <TextView
-        android:id="@+id/tvFinanceProgress"
+        android:id="@+id/tvProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="진행 상황: 1/5"
@@ -22,7 +22,7 @@
         android:paddingBottom="10dp" />
 
     <TextView
-        android:id="@+id/tvFinanceQuestion"
+        android:id="@+id/tvQuestion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="문제 설명"
@@ -30,46 +30,43 @@
         android:paddingBottom="20dp" />
 
     <Button
-        android:id="@+id/btnFinanceOp1"
+        android:id="@+id/btnOp1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp" />
 
     <Button
-        android:id="@+id/btnFinanceOp2"
+        android:id="@+id/btnOp2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp" />
 
     <Button
-        android:id="@+id/btnFinanceOp3"
+        android:id="@+id/btnOp3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp" />
 
     <Button
-        android:id="@+id/btnFinanceOp4"
+        android:id="@+id/btnOp4"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp" />
 
     <Button
-        android:id="@+id/btnFinanceHint"
+        android:id="@+id/btnHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="힌트"
-        android:padding="8dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp" />
 
-    <!-- 페이지 넘기기 버튼 -->
+        android:text="힌트"
+        android:layout_marginTop="10dp" />
+
     <Button
         android:id="@+id/btnNextPage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="다음 페이지"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp" />
+        android:text="다음"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
 
 </LinearLayout>

@@ -26,9 +26,23 @@ public class MainActivity extends AppCompatActivity {
         tvQuizResults = findViewById(R.id.tvQuizResults);
         Button btnHelp = findViewById(R.id.btnHelp); // 도움말 버튼
 
-        btnFinanceQuiz.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizFinanceActivity.class)));
-        btnEconomyQuiz.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizEconomyActivity.class)));
-        btnPublicQuiz.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizPublicActivity.class)));
+        btnFinanceQuiz.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, QuizActivityDetail.class);
+            i.putExtra("category", "finance");
+            startActivity(i);
+        });
+
+        btnEconomyQuiz.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, QuizActivityDetail.class);
+            i.putExtra("category", "economy");
+            startActivity(i);
+        });
+
+        btnPublicQuiz.setOnClickListener(v -> {
+            Intent i = new Intent(MainActivity.this, QuizActivityDetail.class);
+            i.putExtra("category", "public");
+            startActivity(i);
+        });
         btnWrongNote.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WrongNoteActivity.class)));
 
         // 도움말 버튼 클릭 리스너

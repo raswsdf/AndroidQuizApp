@@ -2,4 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- 메인 / 보조용 -->
+    <color name="color_main">#346F41</color>
+    <color name="color_sub">#699472</color>
+
+    <!-- 필요 시 텍스트 대비용 -->
+    <color name="color_on_main">#FFFFFF</color>
+    <color name="color_on_sub">#FFFFFF</color>
 </resources>

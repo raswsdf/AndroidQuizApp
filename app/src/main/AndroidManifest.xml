@@ -13,6 +13,12 @@
         android:theme="@style/Theme.Quiz_app_submit"
         tools:targetApi="31">
         <activity
+            android:name=".WrongNoteActivityDetail"
+            android:exported="false" />
+        <activity
+            android:name=".QuizActivityDetail"
+            android:exported="false" />
+        <activity
             android:name=".QuizActivity"
             android:exported="false" />
         <activity
@@ -22,25 +28,7 @@
             android:name=".ResultActivity"
             android:exported="false" />
         <activity
-            android:name=".QuizPublicActivity"
-            android:exported="false" />
-        <activity
-            android:name=".QuizEconomyActivity"
-            android:exported="false" />
-        <activity
-            android:name=".WrongNotePublicActivity"
-            android:exported="false" />
-        <activity
-            android:name=".WrongNoteEconomyActivity"
-            android:exported="false" />
-        <activity
-            android:name=".WrongNoteFinanceActivity"
-            android:exported="false" />
-        <activity
             android:name=".WrongNoteActivity"
-            android:exported="false" />
-        <activity
-            android:name=".QuizFinanceActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

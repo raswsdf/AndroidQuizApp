@@ -23,24 +23,22 @@ public class WrongNoteActivity extends AppCompatActivity {
         btnPublicQuiz = findViewById(R.id.btnPublicQuiz);
         btnHelp = findViewById(R.id.btnHelp);
 
+        // WrongNoteActivity.java 안에서, 버튼 리스너 부분만 교체
         btnEconomyQuiz.setOnClickListener(v -> {
-            List<Question> wrongEconomy = WrongAnswerStorage.getWrongAnswers("economy");
-            Intent intent = new Intent(this, WrongNoteEconomyActivity.class);
-            intent.putExtra("wrongQuestions", (ArrayList<Question>) wrongEconomy);
+            Intent intent = new Intent(this, WrongNoteActivityDetail.class);
+            intent.putExtra("category", "economy"); // lower key
             startActivity(intent);
         });
 
         btnFinanceQuiz.setOnClickListener(v -> {
-            List<Question> wrongFinance = WrongAnswerStorage.getWrongAnswers("finance");
-            Intent intent = new Intent(this, WrongNoteFinanceActivity.class);
-            intent.putExtra("wrongQuestions", (ArrayList<Question>) wrongFinance);
+            Intent intent = new Intent(this, WrongNoteActivityDetail.class);
+            intent.putExtra("category", "finance");
             startActivity(intent);
         });
 
         btnPublicQuiz.setOnClickListener(v -> {
-            List<Question> wrongPublic = WrongAnswerStorage.getWrongAnswers("public");
-            Intent intent = new Intent(this, WrongNotePublicActivity.class);
-            intent.putExtra("wrongQuestions", (ArrayList<Question>) wrongPublic);
+            Intent intent = new Intent(this, WrongNoteActivityDetail.class);
+            intent.putExtra("category", "public");
             startActivity(intent);
         });
 

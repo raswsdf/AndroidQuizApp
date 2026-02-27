@@ -13,3 +13,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# local temp
+_tmp_untracked/

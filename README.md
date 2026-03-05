@@ -48,9 +48,9 @@
 - 오답 자동 저장
 
 **관련 클래스**
-- `QuizActivity`
-- `QuizData`
-- `Question`
+- QuizActivity
+- QuizData
+- Question
 
 
 ### 3. 결과 화면
@@ -60,7 +60,7 @@
 - 오답노트 이동 기능 제공
 
 **관련 클래스**
-- `ResultActivity`
+- ResultActivity
 
 
 ### 4. 오답노트 기능
@@ -75,11 +75,11 @@
 - 복습 퀴즈 재시작 가능
 
 **관련 클래스**
-- `WrongNoteActivity`
-- `WrongNoteActivityDetail`
-- `SharedPreferencesManager`
-- `WrongAnswer`
-- `WrongAnswerStorage`
+- WrongNoteActivity
+- WrongNoteActivityDetail
+- SharedPreferencesManager
+- WrongAnswer
+- WrongAnswerStorage
 
 
 ### 5. 오답 복습 퀴즈
@@ -88,7 +88,7 @@
 - 반복 학습 구조 제공
 
 **관련 클래스**
-- `QuizReviewActivity`
+- QuizReviewActivity
 
 ---
 
@@ -102,17 +102,7 @@
 ---
 ### 화면 흐름 구조
 
-MainActivity
-↓
-QuizActivity
-↓
-ResultActivity
-↓
-WrongNoteActivity
-↓
-WrongNoteActivityDetail
+MainActivity -> QuizActivity -> ResultActivity -> WrongNoteActivity -> WrongNoteActivityDetail
 
 (복습 흐름)
-WrongNoteActivityDetail
-↓
-QuizReviewActivity
+WrongNoteActivityDetail -> QuizReviewActivity

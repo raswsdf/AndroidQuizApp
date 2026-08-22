@@ -47,16 +47,20 @@ public class WrongNoteActivityDetail extends AppCompatActivity {
         // 3) 제목 표기
         tvCategoryTitle.setText(makeTitle(categoryPrefKey));
 
-        // 4) 틀린 문제 로딩 + 렌더링
-        renderWrongQuestions(categoryPrefKey);
-
-        // 5) 복습 퀴즈 버튼
+        // 4) 복습 퀴즈 버튼
         btnStartQuiz.setOnClickListener(v -> {
             Intent intent = new Intent(WrongNoteActivityDetail.this, QuizActivity.class);
             // QuizActivity는 SharedPreferences 키("Economy/Finance/Public")를 CATEGORY로 받음
             intent.putExtra("CATEGORY", categoryPrefKey);
             startActivity(intent);
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 복습 퀴즈에서 삭제된 오답을 상세 화면 복귀 즉시 반영
+        renderWrongQuestions(categoryPrefKey);
     }
 
     private void renderWrongQuestions(String prefKey) {
@@ -69,12 +73,26 @@ public class WrongNoteActivityDetail extends AppCompatActivity {
             for (Question question : wrongQuestions) {
                 TextView tvQuestionAnswer = new TextView(this);
                 tvQuestionAnswer.setText(
-                        "문제: " + question.getQuestionText() + "\n" +
+                        "문제: " + question.getOriginalQuestionText() + "\n" +
                                 "답: " + question.getAnswer()
                 );
-                tvQuestionAnswer.setTextSize(18);
-                tvQuestionAnswer.setPadding(0, 10, 0, 10);
-                llWrongNotes.addView(tvQuestionAnswer);
+                tvQuestionAnswer.setTextSize(16);
+                tvQuestionAnswer.setTextColor(getColor(R.color.black));
+                tvQuestionAnswer.setLineSpacing(dpToPx(3), 1f);
+                tvQuestionAnswer.setPadding(
+                        dpToPx(16), dpToPx(14), dpToPx(16), dpToPx(14));
+                tvQuestionAnswer.setBackgroundResource(
+                        R.drawable.wrong_note_item_background);
+                tvQuestionAnswer.setElevation(dpToPx(1));
+
+                LinearLayout.LayoutParams itemLayoutParams =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+                itemLayoutParams.setMargins(
+                        dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(12));
+                llWrongNotes.addView(tvQuestionAnswer, itemLayoutParams);
             }
             btnStartQuiz.setVisibility(View.VISIBLE);
         } else {
@@ -110,10 +128,14 @@ public class WrongNoteActivityDetail extends AppCompatActivity {
 
     private String makeTitle(String prefKey) {
         switch (prefKey) {
-            case "Finance": return "Finance 오답노트";
-            case "Public":  return "Public 오답노트";
+            case "Finance": return "금융 오답노트";
+            case "Public":  return "공공 오답노트";
             case "Economy":
-            default:        return "Economy 오답노트";
+            default:        return "경제 오답노트";
         }
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 }

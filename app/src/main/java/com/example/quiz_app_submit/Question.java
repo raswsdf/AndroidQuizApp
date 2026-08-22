@@ -8,11 +8,13 @@ import java.util.Objects;
 public class Question implements Serializable {
 
     private String questionText;  // 문제 텍스트
+    private String originalQuestionText; // 정답 마스킹 전 원문
     private String answer;        // 정답
     private List<String> options; // 선택지 리스트
 
     public Question(String questionText, String answer, List<String> options) {
         this.questionText = questionText;
+        this.originalQuestionText = questionText;
         this.answer = answer;
         this.options = options;
     }
@@ -23,6 +25,14 @@ public class Question implements Serializable {
 
     public void setQuestionText(String questionText) {
         this.questionText = questionText;
+    }
+
+    public String getOriginalQuestionText() {
+        return originalQuestionText == null ? questionText : originalQuestionText;
+    }
+
+    public void setOriginalQuestionText(String originalQuestionText) {
+        this.originalQuestionText = originalQuestionText;
     }
 
     public String getAnswer() {

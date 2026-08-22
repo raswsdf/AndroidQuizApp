@@ -1,6 +1,5 @@
 package com.example.quiz_app_submit;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +36,7 @@ public class QuizActivity extends AppCompatActivity {
         llOptions = findViewById(R.id.llOptions);
         btnNext = findViewById(R.id.btnNext);
         btnStop = findViewById(R.id.btnStop);
+        btnStop.setBackgroundTintList(null);
         tvRemainingQuestions = findViewById(R.id.tvRemainingQuestions);
         random = new Random();
 
@@ -52,11 +52,8 @@ public class QuizActivity extends AppCompatActivity {
         showNextQuestion();
 
         btnNext.setOnClickListener(v -> showNextQuestion());
-        btnStop.setOnClickListener(v -> {
-            Intent intent = new Intent(QuizActivity.this, WrongNoteActivity.class);
-            startActivity(intent);
-            finish();
-        });
+        // 현재 복습 화면만 종료하여 기존 오답노트 상세 화면으로 복귀
+        btnStop.setOnClickListener(v -> finish());
     }
 
     private void showNextQuestion() {
@@ -76,6 +73,18 @@ public class QuizActivity extends AppCompatActivity {
         for (String option : currentOptions) {
             Button optionButton = new Button(this);
             optionButton.setText(option);
+            optionButton.setBackgroundTintList(null);
+            optionButton.setBackgroundResource(R.drawable.quiz_review_option_background);
+            optionButton.setTextColor(getColor(R.color.white));
+            optionButton.setPadding(
+                    dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
+            LinearLayout.LayoutParams optionLayoutParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            int bottomMargin = dpToPx(8);
+            optionLayoutParams.setMargins(0, 0, 0, bottomMargin);
+            optionButton.setLayoutParams(optionLayoutParams);
             optionButton.setOnClickListener(v -> handleAnswer(option));
             llOptions.addView(optionButton);
         }
@@ -130,5 +139,9 @@ public class QuizActivity extends AppCompatActivity {
     private void updateRemainingQuestionsCount() {
         int remainingQuestions = wrongQuestions.size();
         tvRemainingQuestions.setText("남은 문제 수: " + remainingQuestions);
+    }
+
+    private int dpToPx(int dp) {
+        return Math.round(dp * getResources().getDisplayMetrics().density);
     }
 }

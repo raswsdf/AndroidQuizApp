@@ -1,25 +1,56 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Quiz_app_submit" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Quiz_app_submit" parent="Theme.Material3.Light.NoActionBar">
         <!-- 핵심 팔레트 -->
         <item name="colorPrimary">@color/color_main</item>
         <item name="colorOnPrimary">@color/color_on_main</item>
 
         <item name="colorSecondary">@color/color_sub</item>
         <item name="colorOnSecondary">@color/color_on_sub</item>
+        <item name="colorTertiary">@color/color_main</item>
+        <item name="colorOnTertiary">@color/color_on_main</item>
 
         <item name="colorPrimaryContainer">@color/color_main</item>
         <item name="colorOnPrimaryContainer">@color/color_on_main</item>
         <item name="colorSecondaryContainer">@color/color_sub</item>
         <item name="colorOnSecondaryContainer">@color/color_on_sub</item>
 
+        <!-- 시스템 다크 모드와 관계없이 흰 배경 + 검정 본문 -->
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorSurfaceVariant">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorOnSurfaceVariant">@color/black</item>
+        <item name="colorOnBackground">@color/black</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+
+        <!-- 보라색 기본 accent/ripple이 나타나지 않도록 녹색으로 고정 -->
+        <item name="colorAccent">@color/color_main</item>
+        <item name="android:colorAccent">@color/color_main</item>
+        <item name="colorControlActivated">@color/color_main</item>
+        <item name="android:colorControlActivated">@color/color_main</item>
+        <item name="colorControlHighlight">@color/color_button_ripple</item>
+        <item name="android:colorControlHighlight">@color/color_button_ripple</item>
+        <item name="colorButtonNormal">@color/color_main</item>
+        <item name="android:colorButtonNormal">@color/color_main</item>
+
         <!-- 버튼 전역 스타일 -->
         <item name="materialButtonStyle">@style/Widget.Quiz_app_submit.Button</item>
+        <item name="buttonStyle">@style/Widget.Quiz_app_submit.Button</item>
+        <item name="android:buttonStyle">@style/Widget.Quiz_app_submit.Button</item>
     </style>
 
     <!-- Material3 버튼 위젯으로 맞춤 -->
     <style name="Widget.Quiz_app_submit.Button" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@color/color_main</item>
+        <item name="backgroundTint">@color/button_background_tint</item>
+        <item name="android:backgroundTint">@color/button_background_tint</item>
+        <item name="rippleColor">@color/color_button_ripple</item>
         <item name="android:textColor">@color/color_on_main</item>
     </style>
 

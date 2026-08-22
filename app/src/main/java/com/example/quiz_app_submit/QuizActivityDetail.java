@@ -1,11 +1,12 @@
 package com.example.quiz_app_submit;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,15 +18,19 @@ import java.util.List;
 
 public class QuizActivityDetail extends AppCompatActivity {
 
+    private static final long ANSWER_TRANSITION_DELAY_MS = 3500L;
+
     // 공용 레이아웃(id 통일) 기반 View
     private TextView tvQuestion, tvScore, tvProgress;
     private Button btnOp1, btnOp2, btnOp3, btnOp4, btnHint, btnNextPage;
+    private ScrollView quizScrollView;
 
     // 퀴즈 상태
     private QuizData quizData;
     private int currentQuestionIndex = 0;
     private int score = 100;
     private final List<Question> wrongQuestions = new ArrayList<>();
+    private final List<Question> reviewQuestions = new ArrayList<>();
     private List<Question> shuffledQuestions = new ArrayList<>();
     private long quizStartTime;
 
@@ -56,9 +61,15 @@ public class QuizActivityDetail extends AppCompatActivity {
         btnOp4 = findViewById(R.id.btnOp4);
         btnHint = findViewById(R.id.btnHint);
         btnNextPage = findViewById(R.id.btnNextPage);
+        quizScrollView = findViewById(R.id.quizScrollView);
 
         // 3) 데이터 준비
-        quizData = new QuizData(categoryLower);
+        quizData = new QuizData(this, categoryLower);
+        if (quizData.getAllQuestions().size() < 5) {
+            Toast.makeText(this, "퀴즈 데이터를 불러오지 못했습니다.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         shuffleQuestions();
         quizStartTime = System.currentTimeMillis();
 
@@ -80,7 +91,7 @@ public class QuizActivityDetail extends AppCompatActivity {
     }
 
     private void updateProgressText() {
-        String progressText = "진행 상황: " + (currentQuestionIndex + 1) + "/5";
+        String progressText = "진행 상황: " + (currentQuestionIndex + 1) + "/" + shuffledQuestions.size();
         tvProgress.setText(progressText);
     }
 
@@ -90,7 +101,7 @@ public class QuizActivityDetail extends AppCompatActivity {
 
         // 안전장치: 문제 수가 5개 미만인 경우도 대비
         int count = Math.min(5, allQuestions.size());
-        shuffledQuestions = allQuestions.subList(0, count);
+        shuffledQuestions = new ArrayList<>(allQuestions.subList(0, count));
     }
 
     private void displayQuestion() {
@@ -100,8 +111,7 @@ public class QuizActivityDetail extends AppCompatActivity {
             Question question = shuffledQuestions.get(currentQuestionIndex);
             tvQuestion.setText(question.getQuestionText());
 
-            // 기존 코드 유지: getRandomWrongAnswer(index) 사용
-            List<String> options = quizData.getRandomWrongAnswer(currentQuestionIndex);
+            List<String> options = quizData.getRandomWrongAnswer(question);
 
             btnOp1.setText(options.get(0));
             btnOp2.setText(options.get(1));
@@ -110,6 +120,7 @@ public class QuizActivityDetail extends AppCompatActivity {
 
             enableOptionButtons();
             btnNextPage.setVisibility(View.GONE);
+            quizScrollView.post(() -> quizScrollView.fullScroll(View.FOCUS_UP));
         } else {
             finishQuiz();
         }
@@ -128,10 +139,15 @@ public class QuizActivityDetail extends AppCompatActivity {
 
             // 마지막 선지 1개 남았으면 힌트 사용 불가
             if (remainingOptions > 1) {
+                Question currentQuestion = shuffledQuestions.get(currentQuestionIndex);
                 score -= 5;
                 tvScore.setText("점수: " + Math.max(score, 0));
                 disableOneIncorrectOption();
+                addReviewQuestion(currentQuestion);
+                updateHintButtonState();
+                showNextPageButton();
             } else {
+                setHintButtonEnabled(false);
                 Toast.makeText(this, "힌트를 더 이상 사용할 수 없습니다.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -145,6 +161,17 @@ public class QuizActivityDetail extends AppCompatActivity {
         return count;
     }
 
+    private void updateHintButtonState() {
+        setHintButtonEnabled(countEnabledOptions() > 1);
+    }
+
+    private void setHintButtonEnabled(boolean enabled) {
+        btnHint.setEnabled(enabled);
+        btnHint.setBackgroundTintList(ColorStateList.valueOf(getColor(
+                enabled ? R.color.color_main : R.color.color_button_disabled)));
+        btnHint.setTextColor(getColor(R.color.white));
+    }
+
     private void disableOneIncorrectOption() {
         Question currentQuestion = shuffledQuestions.get(currentQuestionIndex);
 
@@ -152,7 +179,9 @@ public class QuizActivityDetail extends AppCompatActivity {
             // 정답이 아닌 버튼 중, 아직 활성화된 것 하나만 제거
             if (!option.getText().toString().equals(currentQuestion.getAnswer()) && option.isEnabled()) {
                 option.setEnabled(false);
-                option.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                option.setBackgroundTintList(
+                        ColorStateList.valueOf(getColor(R.color.color_button_disabled)));
+                option.setTextColor(getColor(R.color.white));
                 break;
             }
         }
@@ -160,17 +189,39 @@ public class QuizActivityDetail extends AppCompatActivity {
 
     private void setNextPageClickListener() {
         btnNextPage.setOnClickListener(v -> {
+            Question currentQuestion = shuffledQuestions.get(currentQuestionIndex);
+            if (!wrongQuestions.contains(currentQuestion)) {
+                wrongQuestions.add(currentQuestion);
+            }
+            addReviewQuestion(currentQuestion);
             currentQuestionIndex++;
             displayQuestion();
         });
     }
 
+    private void showNextPageButton() {
+        btnNextPage.setEnabled(true);
+        btnNextPage.setVisibility(View.VISIBLE);
+        quizScrollView.post(() -> quizScrollView.fullScroll(View.FOCUS_DOWN));
+    }
+
+    private void addReviewQuestion(Question question) {
+        if (!reviewQuestions.contains(question)) {
+            reviewQuestions.add(question);
+        }
+    }
+
     private void enableOptionButtons() {
         for (Button option : new Button[]{btnOp1, btnOp2, btnOp3, btnOp4}) {
             option.setEnabled(true);
-            option.setBackgroundColor(Color.parseColor("#699472")); // 서브 컬러(눈 보기 편하게)
+            option.setBackgroundTintList(
+                    ColorStateList.valueOf(getColor(R.color.color_quiz_option)));
+            option.setTextColor(getColor(R.color.white));
         }
-        btnHint.setBackgroundColor(Color.parseColor("#346F41")); // 메인 컬러
+        setHintButtonEnabled(true);
+        btnNextPage.setEnabled(true);
+        btnNextPage.setBackgroundTintList(getColorStateList(R.color.button_background_tint));
+        btnNextPage.setTextColor(getColor(R.color.white));
         tvScore.setText("점수: " + Math.max(score, 0));
     }
 
@@ -179,6 +230,8 @@ public class QuizActivityDetail extends AppCompatActivity {
 
         if (selectedAnswer.equals(currentQuestion.getAnswer())) {
             Toast.makeText(this, "정답입니다!", Toast.LENGTH_SHORT).show();
+            tvQuestion.setText(currentQuestion.getOriginalQuestionText());
+            btnNextPage.setEnabled(false);
             disableAllOptionButtons();
 
             new Handler().postDelayed(() -> {
@@ -188,12 +241,14 @@ public class QuizActivityDetail extends AppCompatActivity {
                 } else {
                     finishQuiz();
                 }
-            }, 1500);
+            }, ANSWER_TRANSITION_DELAY_MS);
 
         } else {
             // 틀린 경우: 선택한 버튼만 비활성화
             selectedButton.setEnabled(false);
-            selectedButton.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            selectedButton.setBackgroundTintList(
+                    ColorStateList.valueOf(getColor(R.color.color_button_disabled)));
+            selectedButton.setTextColor(getColor(R.color.white));
 
             // 점수 감소
             score -= 10;
@@ -206,17 +261,22 @@ public class QuizActivityDetail extends AppCompatActivity {
             if (!wrongQuestions.contains(currentQuestion)) {
                 wrongQuestions.add(currentQuestion);
             }
+            addReviewQuestion(currentQuestion);
+            updateHintButtonState();
 
             // 다음 버튼 표시
-            btnNextPage.setVisibility(View.VISIBLE);
+            showNextPageButton();
         }
     }
 
     private void disableAllOptionButtons() {
         for (Button option : new Button[]{btnOp1, btnOp2, btnOp3, btnOp4}) {
             option.setEnabled(false);
-            option.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            option.setBackgroundTintList(
+                    ColorStateList.valueOf(getColor(R.color.color_button_disabled)));
+            option.setTextColor(getColor(R.color.white));
         }
+        setHintButtonEnabled(false);
     }
 
     private void finishQuiz() {
@@ -231,6 +291,7 @@ public class QuizActivityDetail extends AppCompatActivity {
         resultIntent.putExtra("category", categoryLower); // 기존 ResultActivity 표기/저장 흐름 유지
         resultIntent.putExtra("score", finalScore);
         resultIntent.putExtra("timeSpent", timeSpent);
+        resultIntent.putExtra("reviewQuestions", new ArrayList<>(reviewQuestions));
         resultIntent.putExtra("wrongQuestions", new ArrayList<>(wrongQuestions));
         startActivity(resultIntent);
 

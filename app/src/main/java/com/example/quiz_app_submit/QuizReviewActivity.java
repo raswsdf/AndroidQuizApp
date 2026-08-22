@@ -14,7 +14,7 @@ public class QuizReviewActivity extends AppCompatActivity {
 
     private TextView tvReviewQuestion, tvReviewProgress, tvReviewAnswer;
     private Button btnNextPage;
-    private List<Question> wrongQuestions;
+    private List<Question> reviewQuestions;
     private int currentQuestionIndex = 0;
 
     @Override
@@ -27,10 +27,16 @@ public class QuizReviewActivity extends AppCompatActivity {
         tvReviewAnswer = findViewById(R.id.tvReviewAnswer);
         btnNextPage = findViewById(R.id.btnNextPage);
 
-        // 틀린 문제 리스트 받기
-        wrongQuestions = (List<Question>) getIntent().getSerializableExtra("wrongQuestions");
+        // 힌트를 사용했거나 틀린 문제 리스트 받기
+        reviewQuestions =
+                (List<Question>) getIntent().getSerializableExtra("reviewQuestions");
+        if (reviewQuestions == null) {
+            // 이전 화면 전달 방식과 호환
+            reviewQuestions =
+                    (List<Question>) getIntent().getSerializableExtra("wrongQuestions");
+        }
 
-        if (wrongQuestions == null || wrongQuestions.isEmpty()) {
+        if (reviewQuestions == null || reviewQuestions.isEmpty()) {
             Toast.makeText(this, "복습할 문제가 없습니다.", Toast.LENGTH_SHORT).show();
             finish();
         } else {
@@ -40,12 +46,14 @@ public class QuizReviewActivity extends AppCompatActivity {
     }
 
     private void displayQuestion() {
-        if (wrongQuestions != null && !wrongQuestions.isEmpty()) {
-            if (currentQuestionIndex < wrongQuestions.size()) {
-                Question currentQuestion = wrongQuestions.get(currentQuestionIndex);
+        if (reviewQuestions != null && !reviewQuestions.isEmpty()) {
+            if (currentQuestionIndex < reviewQuestions.size()) {
+                Question currentQuestion = reviewQuestions.get(currentQuestionIndex);
 
-                tvReviewQuestion.setText("문제: " + currentQuestion.getQuestionText());
-                tvReviewProgress.setText((currentQuestionIndex + 1) + "/" + wrongQuestions.size());
+                tvReviewQuestion.setText(
+                        "문제: " + currentQuestion.getOriginalQuestionText());
+                tvReviewProgress.setText(
+                        (currentQuestionIndex + 1) + "/" + reviewQuestions.size());
                 String correctAnswer = currentQuestion.getAnswer();
                 tvReviewAnswer.setText("정답: " + correctAnswer);
                 btnNextPage.setVisibility(View.VISIBLE);

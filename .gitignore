@@ -20,3 +20,6 @@ local.properties
 
 # local temp
 _tmp_untracked/
+
+# Local quiz dataset — public 레포 전환시 혹시 몰라서 제외
+/app/src/main/assets/quiz_data.json

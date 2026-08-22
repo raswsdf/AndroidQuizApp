@@ -69,7 +69,17 @@ public class SharedPreferencesManager {
             Type type = new TypeToken<Set<Question>>(){}.getType();
             Set<Question> questionSet = gson.fromJson(json, type);
 
-            return new ArrayList<>(questionSet);
+            List<Question> maskedQuestions = new ArrayList<>();
+            for (Question question : questionSet) {
+                if (question != null) {
+                    String originalQuestionText = question.getOriginalQuestionText();
+                    question.setOriginalQuestionText(originalQuestionText);
+                    question.setQuestionText(QuizData.maskAnswerInQuestion(
+                            originalQuestionText, question.getAnswer()));
+                    maskedQuestions.add(question);
+                }
+            }
+            return maskedQuestions;
         }
         return null;
     }
